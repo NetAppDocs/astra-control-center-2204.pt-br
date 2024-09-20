@@ -1,0 +1,215 @@
+---
+sidebar: sidebar 
+permalink: use/manage-apps.html 
+keywords: how to manage apps with astra control, discover app, how to manage kubernetes apps, astra control, astra 
+summary: 'Depois de adicionar clusters de Kubernetes ao Astra Control, você pode instalar aplicações nesse cluster (fora do Astra Control) e, em seguida, ir para a página aplicações no Astra Control para começar a gerenciar as aplicações.' 
+---
+= Comece a gerenciar aplicativos
+:hardbreaks:
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/use/
+
+
+Depois de link:../get-started/setup_overview.html#add-cluster["Adicionar um cluster ao gerenciamento do Astra Control"]instalar aplicativos no cluster (fora do Astra Control) e, em seguida, vá para a página aplicativos no Astra Control para começar a gerenciar os aplicativos e seus recursos.
+
+Para obter mais informações, link:../get-started/requirements.html#application-management-requirements["Requisitos de gerenciamento de aplicativos"]consulte .
+
+
+
+=== Métodos de instalação de aplicativos suportados
+
+O Astra Control é compatível com os seguintes métodos de instalação de aplicações:
+
+* *Arquivo manifesto*: O Astra Control suporta aplicativos instalados a partir de um arquivo manifesto usando kubectl. Por exemplo:
++
+[listing]
+----
+kubectl apply -f myapp.yaml
+----
+* *Helm 3*: Se você usar o Helm para instalar aplicativos, o Astra Control requer o Helm versão 3. O gerenciamento e clonagem de aplicativos instalados com o Helm 3 (ou atualizados do Helm 2 para o Helm 3) são totalmente compatíveis. O gerenciamento de aplicativos instalados com o Helm 2 não é suportado.
+* *Aplicativos implantados pelo operador*: O Astra Control suporta aplicativos instalados com operadores com escopo de namespace. Esses operadores são geralmente projetados com uma arquitetura "pass-by-value" em vez de "pass-by-reference". A seguir estão alguns aplicativos de operador que seguem estes padrões:
++
+** https://github.com/k8ssandra/cass-operator/tree/v1.7.1["Apache K8ssandra"^]
+** https://github.com/jenkinsci/kubernetes-operator["Jenkins CI"^]
+** https://github.com/percona/percona-xtradb-cluster-operator["Cluster Percona XtraDB"^]
+
+
+
+
+Observe que o Astra Control pode não ser capaz de clonar um operador projetado com uma arquitetura "pass-by-reference" (por exemplo, o operador CockroachDB). Durante esses tipos de operações de clonagem, o operador clonado tenta consultar os segredos do Kubernetes do operador de origem, apesar de ter seu próprio novo segredo como parte do processo de clonagem. A operação de clone pode falhar porque o Astra Control não conhece os segredos do Kubernetes no operador de origem.
+
+
+NOTE: Um operador e o aplicativo que ele instala devem usar o mesmo namespace; talvez seja necessário modificar o arquivo .yaml de implantação para que o operador garanta que esse seja o caso.
+
+
+
+== Instale aplicativos no cluster
+
+Agora que você adicionou seu cluster ao Astra Control, você pode instalar aplicações ou gerenciar aplicações existentes no cluster. Qualquer aplicativo com escopo para um namespace pode ser gerenciado. Depois que os pods estiverem online, você poderá gerenciar a aplicação com o Astra Control.
+
+Para obter ajuda com a implantação de aplicativos validados a partir de gráficos Helm, consulte o seguinte:
+
+* link:../solutions/mariadb-deploy-from-helm-chart.html["Implante o MariaDB a partir de um gráfico Helm"]
+* link:../solutions/mysql-deploy-from-helm-chart.html["Implante o MySQL a partir de um gráfico Helm"]
+* link:../solutions/postgres-deploy-from-helm-chart.html["Implante Postgres a partir de um gráfico Helm"]
+* link:../solutions/jenkins-deploy-from-helm-chart.html["Implante Jenkins a partir de um gráfico Helm"]
+
+
+
+
+== Gerir aplicações
+
+Com o Astra Control, você gerencia suas aplicações no nível de namespace ou por rótulo Kubernetes.
+
+
+NOTE: As aplicações instaladas com o Helm 2 não são suportadas.
+
+Você pode executar as seguintes atividades para gerenciar aplicativos:
+
+* Gerir aplicações
++
+** <<Gerenciar aplicativos por namespace>>
+** <<Gerenciar aplicativos por etiqueta do Kubernetes>>
+
+
+* <<Ignore as aplicações>>
+* <<Desgerenciar aplicativos>>
+
+
+
+TIP: O Astra Control em si não é um aplicativo padrão; é um "aplicativo do sistema". Você não deve tentar gerenciar o Astra Control por si só. O próprio Astra Control não é mostrado por padrão para gerenciamento. Para ver as aplicações do sistema, utilize o filtro "Mostrar aplicações do sistema".
+
+Para obter instruções sobre como gerenciar aplicativos usando a API Astra Control, consulte o link:https://docs.netapp.com/us-en/astra-automation-2204/["Informações de API e automação do Astra"^].
+
+
+NOTE: Após uma operação de proteção de dados (clone, backup, restauração) e subsequente redimensionamento persistente de volume, há até vinte minutos de atraso antes que o novo tamanho de volume seja exibido na IU. A operação de proteção de dados é bem-sucedida em minutos. Você pode usar o software de gerenciamento do back-end de storage para confirmar a alteração no tamanho do volume.
+
+
+
+=== Gerenciar aplicativos por namespace
+
+A seção *descoberto* da página Apps mostra namespaces e quaisquer aplicativos instalados pelo Helm ou aplicativos personalizados nesses namespaces. Você pode optar por gerenciar cada aplicativo individualmente ou no nível do namespace. Tudo se resume ao nível de granularidade de que você precisa para operações de proteção de dados.
+
+Por exemplo, você pode querer definir uma política de backup para "maria" que tenha uma cadência semanal, mas você pode precisar fazer backup do "mariadb" (que está no mesmo namespace) com mais frequência do que isso. Com base nessas necessidades, você precisaria gerenciar os aplicativos separadamente e não sob um único namespace.
+
+Embora o Astra Control permita gerenciar separadamente os dois níveis da hierarquia (o namespace e os aplicativos nesse namespace), a prática recomendada é escolher um ou outro. As ações que você executa no Astra Control podem falhar se as ações ocorrerem ao mesmo tempo no nível do namespace e da aplicação.
+
+.Passos
+. Na barra de navegação à esquerda, selecione *aplicações*.
+. Selecione o filtro *descoberto*.
++
+image:acc_apps_discovered4.png["Captura de tela do filtro de aplicativos descobertos"]
+
+. Veja a lista de namespaces descobertos. Expanda o namespace para exibir os aplicativos e os recursos associados.
++
+O Astra Control mostra os aplicativos Helm e os aplicativos personalizados no namespace. Se os rótulos Helm estiverem disponíveis, eles serão designados com um ícone de tag.
+
+. Olhe para a coluna *Group* para ver em qual namespace o aplicativo está sendo executado (ele é designado com o ícone de pasta).
+. Decida se você deseja gerenciar cada aplicativo individualmente ou no nível do namespace.
+. Encontre o aplicativo desejado no nível desejado na hierarquia e selecione *Gerenciar* no menu Opções na coluna *ações*.
+. Se você não quiser gerenciar um aplicativo, selecione *Ignorar* no menu Opções na coluna *ações*.
++
+Por exemplo, se você quiser gerenciar todos os aplicativos sob o namespace "maria" juntos para que eles tenham as mesmas políticas de snapshot e backup, você gerenciaria o namespace e ignoraria os aplicativos no namespace.
+
+. Para ver a lista de aplicativos gerenciados, selecione *gerenciados* como o filtro de exibição.
++
+image:acc_apps_managed3.png["Captura de tela do filtro de aplicativos gerenciados"]
+
++
+
+NOTE: O aplicativo que você acabou de adicionar pode ter um ícone de aviso na coluna protegido, indicando que ele ainda não foi feito backup e ainda não está programado para backups.
+
+. Para ver os detalhes de uma aplicação específica, selecione o nome da aplicação.
+
+
+.Resultado
+Os aplicativos que você escolheu gerenciar agora estão disponíveis na guia *gerenciado*. Quaisquer aplicativos ignorados serão movidos para a guia *ignorado*. Idealmente, a guia descoberta mostrará zero aplicativos, de modo que, à medida que novos aplicativos são instalados, eles são mais fáceis de encontrar e gerenciar.
+
+
+
+=== Gerenciar aplicativos por etiqueta do Kubernetes
+
+O Astra Control inclui uma ação no topo da página Apps chamada *Definir aplicativo personalizado*. Você pode usar essa ação para gerenciar aplicativos identificados com um rótulo Kubernetes. link:../use/define-custom-app.html["Saiba mais sobre como definir aplicativos personalizados pelo rótulo do Kubernetes"].
+
+.Passos
+. Na barra de navegação à esquerda, selecione *aplicações*.
+. Selecione *Definir*.
+. Na caixa de diálogo *Definir aplicativo personalizado*, forneça as informações necessárias para gerenciar o aplicativo:
++
+.. *Novo aplicativo*: Insira o nome de exibição do aplicativo.
+.. *Cluster*: Selecione o cluster onde o aplicativo reside.
+.. * Namespace:* Selecione o namespace para o aplicativo.
+.. *Label:* Digite um rótulo ou selecione um rótulo dos recursos abaixo.
+.. *Recursos selecionados*: Visualize e gerencie os recursos do Kubernetes selecionados que você gostaria de proteger (pods, segredos, volumes persistentes e muito mais).
++
+*** Exiba os rótulos disponíveis expandindo um recurso e selecionando o número de rótulos.
+*** Selecione uma das etiquetas.
++
+Depois de escolher um rótulo, ele será exibido no campo *Label*. O Astra Control também atualiza a seção *recursos não selecionados* para mostrar os recursos que não correspondem ao rótulo selecionado.
+
+
+
+.. *Recursos não selecionados*: Verifique os recursos do aplicativo que você não deseja proteger.
+
+
+. Selecione *Definir aplicação personalizada*.
+
+
+.Resultado
+O Astra Control permite o gerenciamento da aplicação. Agora você pode encontrá-lo na guia *gerenciado*.
+
+
+
+== Ignore as aplicações
+
+Se um aplicativo foi descoberto, ele aparece na lista descoberta. Nesse caso, você pode limpar a lista descoberta para que novos aplicativos recém-instalados sejam mais fáceis de encontrar. Ou, você pode ter aplicativos que você está gerenciando e, mais tarde, decidir que não deseja mais gerenciá-los. Se você não quiser gerenciar esses aplicativos, você pode indicar que eles devem ser ignorados.
+
+Além disso, você pode querer gerenciar aplicativos em um namespace juntos (gerenciado por namespace). Você pode ignorar aplicativos que deseja excluir do namespace.
+
+.Passos
+. Na barra de navegação à esquerda, selecione *aplicações*.
+. Selecione *descoberto* como filtro.
+. Selecione a aplicação.
+. No menu Opções na coluna *ações*, selecione *Ignorar*.
+. Para ignorar, selecione *Unignore*.
+
+
+
+
+== Desgerenciar aplicativos
+
+Quando você não quiser mais fazer backup, snapshot ou clonar um aplicativo, pode parar de gerenciá-lo.
+
+
+NOTE: Se você desgerenciar um aplicativo, todos os backups ou snapshots criados anteriormente serão perdidos.
+
+.Passos
+. Na barra de navegação à esquerda, selecione *aplicações*.
+. Selecione *Managed* como filtro.
+. Selecione a aplicação.
+. No menu Opções na coluna *ações*, selecione *Desgerenciar*.
+. Reveja as informações.
+. Digite "Unmanage" (Desgerenciar) para confirmar.
+. Selecione *Sim, Desgerenciar aplicativo*.
+
+
+
+
+== E quanto aos aplicativos do sistema?
+
+O Astra Control também descobre as aplicações de sistema executadas em um cluster Kubernetes. Não mostramos esses aplicativos de sistema por padrão, porque é raro que você precise fazer backup deles.
+
+Você pode exibir aplicativos do sistema na página aplicativos selecionando a caixa de seleção *Mostrar aplicativos do sistema* sob o filtro clusters na barra de ferramentas.
+
+image:acc_apps_system_apps3.png["Uma captura de tela que mostra a opção Mostrar aplicativos do sistema que está disponível na página aplicativos."]
+
+
+TIP: O Astra Control em si não é um aplicativo padrão; é um "aplicativo do sistema". Você não deve tentar gerenciar o Astra Control por si só. O próprio Astra Control não é mostrado por padrão para gerenciamento.
+
+
+
+== Encontre mais informações
+
+* https://docs.netapp.com/us-en/astra-automation-2204/index.html["Use a API Astra Control"^]
+

@@ -1,0 +1,151 @@
+---
+sidebar: sidebar 
+permalink: use/execution-hooks.html 
+keywords: execution hook, snapshot, hook, kubernetes, astra control, astra 
+summary: Um gancho de execução é um script personalizado que você pode executar antes ou depois de um instantâneo de um aplicativo gerenciado. 
+---
+= Gerenciar ganchos de execução de aplicativos
+:hardbreaks:
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/use/
+
+
+[role="lead"]
+Um gancho de execução é um script personalizado que você pode executar antes ou depois de um instantâneo de um aplicativo gerenciado. Por exemplo, se você tiver um aplicativo de banco de dados, poderá usar ganchos de execução para pausar todas as transações de banco de dados antes de um snapshot e retomar as transações após a conclusão do snapshot. Isso garante snapshots consistentes com aplicativos.
+
+
+
+== Ganchos de execução padrão e expressões regulares
+
+Para alguns aplicativos, o Astra Control vem com ganchos de execução padrão, fornecidos pelo NetApp, que lidam com operações de congelamento e descongelamento antes e depois dos snapshots. O Astra Control usa expressões regulares para corresponder a imagem de contêiner de um aplicativo a essas aplicações:
+
+* MariaDB
++
+** Expressão regular correspondente
+
+
+* MySQL
++
+** Expressão regular correspondente: Mysql
+
+
+* PostgreSQL
++
+** Expressão regular correspondente
+
+
+
+
+Se houver uma correspondência, os ganchos de execução padrão fornecidos pelo NetApp para esse aplicativo aparecerão na lista de ganchos de execução ativos do aplicativo e esses ganchos serão executados automaticamente quando os snapshots desse aplicativo forem obtidos. Se um dos seus aplicativos personalizados tiver um nome de imagem semelhante que corresponda a uma das expressões regulares (e você não quiser usar os ganchos de execução padrão), você pode alterar o nome da imagem ou desativar o gancho de execução padrão para esse aplicativo e usar um gancho personalizado.
+
+Não é possível excluir ou modificar os ganchos de execução padrão.
+
+
+
+== Notas importantes sobre ganchos de execução personalizados
+
+Considere o seguinte ao Planejar ganchos de execução para seus aplicativos.
+
+* O Astra Control requer que ganchos de execução sejam escritos no formato de scripts shell executáveis.
+* O tamanho do script está limitado a 128KBMB.
+* O Astra Control usa configurações de gancho de execução e quaisquer critérios de correspondência para determinar quais ganchos são aplicáveis a um instantâneo.
+* Todas as falhas no gancho de execução são falhas suaves; outros ganchos e o instantâneo ainda são tentados mesmo que um gancho falhe. No entanto, quando um gancho falha, um evento de aviso é registrado no log de eventos da página *atividade*.
+* Para criar, editar ou excluir ganchos de execução, você deve ser um usuário com permissões de proprietário, administrador ou membro.
+* Se um gancho de execução demorar mais de 25 minutos para ser executado, o gancho falhará, criando uma entrada de log de eventos com um código de retorno de "N/A". Qualquer instantâneo afetado expira e será marcado como falhou, com uma entrada de log de eventos resultante anotando o tempo limite.
+
+
+
+NOTE: Como os ganchos de execução geralmente reduzem ou desativam completamente a funcionalidade do aplicativo em que estão sendo executados, você deve sempre tentar minimizar o tempo que seus ganchos de execução personalizados levam para serem executados.
+
+Quando um instantâneo é executado, os eventos de gancho de execução ocorrem na seguinte ordem:
+
+. Todos os ganchos de execução pré-snapshot padrão fornecidos pelo NetApp são executados nos contentores apropriados.
+. Todos os ganchos de execução pré-snapshot personalizados aplicáveis são executados nos contentores apropriados. Você pode criar e executar quantos ganchos pré-snapshot personalizados forem necessários, mas a ordem de execução desses ganchos antes do snapshot não é garantida nem configurável.
+. O instantâneo é executado.
+. Todos os ganchos de execução pós-snapshot personalizados aplicáveis são executados nos contentores apropriados. Você pode criar e executar quantos ganchos pós-snapshot personalizados forem necessários, mas a ordem de execução desses ganchos após o snapshot não é garantida nem configurável.
+. Todos os ganchos de execução pós-snapshot padrão fornecidos pelo NetApp são executados nos contentores apropriados.
+
+
+
+NOTE: Você deve sempre testar seus scripts de gancho de execução antes de habilitá-los em um ambiente de produção. Você pode usar o comando 'kubectl exec' para testar convenientemente os scripts. Depois de habilitar os ganchos de execução em um ambiente de produção, teste os snapshots resultantes para garantir que eles sejam consistentes. Você pode fazer isso clonando o aplicativo para um namespace temporário, restaurando o snapshot e testando o aplicativo.
+
+
+
+== Ver ganchos de execução existentes
+
+Você pode exibir ganchos de execução padrão personalizados ou fornecidos pelo NetApp existentes para um aplicativo.
+
+.Passos
+. Vá para *aplicativos* e selecione o nome de um aplicativo gerenciado.
+. Selecione a guia *ganchos de execução*.
++
+Pode visualizar todos os ganchos de execução ativados ou desativados na lista resultante. Você pode ver o status, a origem e quando um gancho é executado (pré ou pós-snapshot). Para ver os registos de eventos em torno dos ganchos de execução, aceda à página *Activity* na área de navegação do lado esquerdo.
+
+
+
+
+
+== Crie um gancho de execução personalizado
+
+Você pode criar um gancho de execução personalizado para um aplicativo. link:execution-hook-examples.html["Exemplos de gancho de execução"^]Consulte para obter exemplos de gancho. Você precisa ter permissões de proprietário, administrador ou membro para criar ganchos de execução.
+
+
+NOTE: Quando você cria um script shell personalizado para usar como um gancho de execução, lembre-se de especificar o shell apropriado no início do arquivo, a menos que você esteja executando comandos linux ou fornecendo o caminho completo para um executável.
+
+.Passos
+. Selecione *aplicativos* e, em seguida, selecione o nome de um aplicativo gerenciado.
+. Selecione a guia *ganchos de execução*.
+. Selecione *Adicionar um novo gancho*.
+. Na área *Detalhes do gancho*, dependendo de quando o gancho deve ser executado, escolha *Pré-instantâneo* ou *Pós-instantâneo*.
+. Introduza um nome exclusivo para o gancho.
+. (Opcional) Digite quaisquer argumentos para passar para o gancho durante a execução, pressionando a tecla Enter após cada argumento que você inserir para gravar cada um.
+. Na área *Container Images*, se o gancho for executado contra todas as imagens de contentor contidas no aplicativo, ative a caixa de seleção *Apply to all container images* (aplicar a todas as imagens de contentor). Se, em vez disso, o gancho deve agir apenas em uma ou mais imagens de contentor especificadas, insira os nomes de imagem de contentor no campo *nomes de imagem de contentor a corresponder*.
+. Na área *Script*, execute um dos seguintes procedimentos:
++
+** Carregue um script personalizado.
++
+... Selecione a opção *Upload file*.
+... Navegue até um arquivo e carregue-o.
+... Dê ao script um nome exclusivo.
+... (Opcional) Digite quaisquer notas que outros administradores devem saber sobre o script.
+
+
+** Cole em um script personalizado da área de transferência.
++
+... Selecione a opção *Colar da área de transferência*.
+... Selecione o campo de texto e cole o texto do script no campo.
+... Dê ao script um nome exclusivo.
+... (Opcional) Digite quaisquer notas que outros administradores devem saber sobre o script.
+
+
+
+
+. Selecione *Adicionar gancho*.
+
+
+
+
+== Desativar um gancho de execução
+
+Você pode desativar um gancho de execução se quiser impedir temporariamente que ele seja executado antes ou depois de um instantâneo de um aplicativo. Você precisa ter permissões de proprietário, Administrador ou Membro para desativar os ganchos de execução.
+
+.Passos
+. Selecione *aplicativos* e, em seguida, selecione o nome de um aplicativo gerenciado.
+. Selecione a guia *ganchos de execução*.
+. Selecione o menu Opções na coluna *ações* para um gancho que você deseja desativar.
+. Selecione *Desativar*.
+
+
+
+
+== Excluir um gancho de execução
+
+Você pode remover um gancho de execução inteiramente se você não precisar mais dele. Você precisa ter permissões de proprietário, administrador ou membro para excluir ganchos de execução.
+
+.Passos
+. Selecione *aplicativos* e, em seguida, selecione o nome de um aplicativo gerenciado.
+. Selecione a guia *ganchos de execução*.
+. Selecione o menu Opções na coluna *ações* para um gancho que você deseja excluir.
+. Selecione *Eliminar*.
+

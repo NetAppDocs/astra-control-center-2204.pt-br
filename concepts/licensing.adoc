@@ -1,0 +1,42 @@
+---
+sidebar: sidebar 
+permalink: concepts/licensing.html 
+keywords: license, licensing 
+summary: Saiba como as ações que você pode executar com o Astra Control Center diferem com base no status da licença e sobre como o uso do Astra Control Center afeta o consumo de licença. 
+---
+= Licenciamento
+:hardbreaks:
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/concepts/
+
+
+[role="lead"]
+O Astra Control Center requer que seja instalada uma licença para que a funcionalidade completa de gerenciamento de dados do aplicativo seja ativada. Quando você implementa o Astra Control Center sem uma licença, um banner é exibido na IU da Web, avisando que a funcionalidade do sistema é limitada.
+
+As seguintes operações requerem uma licença válida:
+
+* Gerenciamento de novas aplicações
+* Criação de instantâneos ou backups
+* Configuração de uma política de proteção para agendar snapshots ou backups
+* Restaurar a partir de um instantâneo ou cópia de segurança
+* Clonagem a partir de um instantâneo ou estado atual
+
+
+
+NOTE: Você pode adicionar um cluster, adicionar um bucket e gerenciar um back-end de storage do Astra Data Store sem licença. No entanto, você precisa de uma licença válida do Astra Control Center para gerenciar aplicações usando o Astra Data Store como um back-end de storage.
+
+
+
+== Como o consumo de licença é calculado
+
+Quando você adiciona um novo cluster ao Astra Control Center, ele não conta para licenças consumidas até que pelo menos uma aplicação executada no cluster seja gerenciada pelo Astra Control Center. Você também pode adicionar um back-end de storage Astra Data Store ao Astra Control Center sem afetar o consumo de licença. Isso permite que você gerencie um back-end do Astra Data Store a partir de um sistema Astra Control Center não licenciado.
+
+Quando você começa a gerenciar um aplicativo em um cluster, as unidades de CPU do cluster são incluídas no cálculo de consumo de licença do Astra Control Center.
+
+
+
+== Encontre mais informações
+
+* link:../use/update-licenses.html["Atualizar uma licença existente"]
+

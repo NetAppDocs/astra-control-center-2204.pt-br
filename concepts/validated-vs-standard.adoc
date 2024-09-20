@@ -1,0 +1,44 @@
+---
+sidebar: sidebar 
+permalink: concepts/validated-vs-standard.html 
+keywords: what are astra supported apps, astra control validated apps, 
+summary: Há dois tipos de aplicações que você pode levar para o Astra Control, validado e Standard. Conheça a diferença entre essas duas categorias e os impactos potenciais em seus projetos e estratégia. 
+---
+= Aplicativos validados vs padrão
+:hardbreaks:
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+Há dois tipos de aplicações que você pode trazer para o Astra Control: Validadas e padrão. Conheça a diferença entre essas duas categorias e os impactos potenciais em seus projetos e estratégia.
+
+
+NOTE: É tentador pensar nessas duas categorias como "suportadas" e "não suportadas". Mas, como você verá, não há um aplicativo "não suportado" no Astra Control. É possível adicionar qualquer aplicação ao Astra Control, embora as aplicações validadas tenham mais infraestrutura desenvolvida em torno dos workflows do Astra Control em comparação com as aplicações padrão.
+
+
+
+== Aplicações validadas
+
+As aplicações validadas para Astra Control incluem o seguinte:
+
+* MySQL 8.0.25
+* MariaDB 10.5.9
+* PostgreSQL 11,12
+* Jenkins 2.277.4 LTS e 2.289.1 LTS
+
+
+A lista de aplicações validadas representa as aplicações que o Astra Control reconhece. A equipe do Astra Control analisou e confirmou que essas aplicações foram totalmente testadas para serem restauradas. O Astra Control executa workflows personalizados para garantir a consistência de snapshots e backups no nível da aplicação.
+
+Se um aplicativo for validado, a equipe do Astra Control identificou e implementou etapas que podem ser executadas para desativar o aplicativo antes de tirar um snapshot para obter um snapshot consistente com a aplicação. Por exemplo, quando o Astra Control faz um backup de um banco de dados PostgreSQL, ele primeiro desativa o banco de dados. Após a conclusão do backup, o Astra Control restaura o banco de dados para uma operação normal.
+
+Não importa qual tipo de aplicação você usa com o Astra Control, sempre teste o fluxo de trabalho de backup e restauração para garantir que você atenda aos requisitos de recuperação de desastres.
+
+
+
+== Aplicações padrão
+
+Outros aplicativos, incluindo programas personalizados, são considerados aplicativos padrão. Você pode adicionar e gerenciar aplicações padrão por meio do Astra Control. Você também pode criar snapshots e backups básicos e consistentes com falhas de um aplicativo padrão. No entanto, eles não foram totalmente testados para restaurar o aplicativo para o seu estado original.
+
+
+TIP: O Astra Control em si não é um aplicativo padrão; é um "aplicativo do sistema". O próprio Astra Control não é mostrado por padrão para gerenciamento. Você não deve tentar gerenciar o Astra Control por si só.

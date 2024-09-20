@@ -1,0 +1,78 @@
+= Requisitos
+:allow-uri-read: 
+
+
+Saiba como implantar o MariaDB a partir do https://bitnami.com/stack/mariadb/helm["Gráfico de Bitnami Helm"^]. Depois de implantar o MariaDB no cluster, você poderá gerenciar a aplicação com o Astra Control.
+
+O MariaDB é uma aplicação validada para Astra.
+
+* link:../concepts/validated-vs-standard.html#validated-apps["Saiba a diferença entre um aplicativo validado e um aplicativo padrão no Astra Control"^].
+
+
+Essas instruções se aplicam ao Astra Control Service e ao Astra Control Center.
+
+
+NOTE: Os aplicativos implantados no Google Marketplace não foram validados. Alguns usuários relatam problemas com descoberta e/ou backup com implantações do Google Marketplace de Postgres, MariaDB e MySQL.
+
+
+
+== Requisitos
+
+* Um cluster que foi adicionado ao Astra Control.
++
+
+NOTE: No Astra Control Center, você pode adicionar primeiro o cluster ao Astra Control Center ou adicionar primeiro a aplicação.
+
+* Versões atualizadas do Helm (versão 3,2) e do Kubectl instaladas em uma máquina local com o kubeconfig adequado para o cluster
+
+
+
+
+== Instale o MariaDB
+
+Duas notas importantes sobre este processo:
+
+* Você precisa implantar a aplicação depois que o cluster for adicionado ao Astra Control Service, não antes. O Astra Control Center aceitará aplicações antes ou depois que o cluster for adicionado ao Astra Control Center.
+* Você deve implantar o gráfico Helm em um namespace diferente do padrão.
+
+
+.Passos
+. Adicione o repositório do gráfico Bitnami:
++
+[listing]
+----
+helm repo add bitnami https://charts.bitnami.com/bitnami
+----
+. Implante o MariaDB com o comando:
++
+[listing]
+----
+helm install <name> bitnami/MariaDB –-namespace <namespace> --create-namespace
+–-set global.storageClass=<storage_class_name>
+----
++
+
+NOTE: Se o tamanho do volume for alterado, use as unidades Kibibibyte (Ki), Mebibyte (mi) ou Gibibyte (GI).
+
++
+Você precisa definir a classe de armazenamento somente nessas situações:
+
++
+** Você está usando o Astra Control Service e não quer usar a classe de storage padrão.
+** Você está usando o Astra Control Center e ainda não importou o cluster para o Astra Control Center. Ou você importou o cluster, mas não deseja usar a classe de armazenamento padrão.
+
+
+
+
+.Resultado
+Isso faz o seguinte:
+
+* Cria um namespace.
+* Implanta o MariaDB no namespace.
+* Cria um banco de dados.
+
+
+
+WARNING: Este método de configuração da senha na implantação é inseguro. Não recomendamos isso para um ambiente de produção.
+
+Depois que os pods estiverem online, você poderá gerenciar a aplicação com o Astra Control. O Astra Control permite gerenciar um aplicativo no nível de namespace ou usando uma etiqueta de leme.

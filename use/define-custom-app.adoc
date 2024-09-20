@@ -1,0 +1,61 @@
+---
+sidebar: sidebar 
+permalink: use/define-custom-app.html 
+keywords: manage app, custom app, kubernetes, astra control, astra 
+summary: A criação de um aplicativo personalizado permite agrupar elementos do cluster do Kubernetes em um único aplicativo. 
+---
+= Defina um exemplo de aplicativo personalizado
+:hardbreaks:
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/use/
+
+
+[role="lead"]
+A criação de um aplicativo personalizado permite agrupar elementos do cluster do Kubernetes em um único aplicativo. Essa coleção de recursos do Kubernetes é baseada em um namespace e um rótulo.
+
+Uma aplicação personalizada oferece controle mais granular sobre o que incluir em uma operação do Astra Control, incluindo:
+
+* Clone
+* Snapshot
+* Backup
+* Política de proteção
+
+
+Na maioria dos casos, você deseja usar os recursos do Astra Control em todo o aplicativo. No entanto, você também pode criar um aplicativo personalizado para usar esses recursos pelos rótulos atribuídos a objetos Kubernetes em um namespace.
+
+
+NOTE: Aplicativos personalizados podem ser criados somente dentro de um namespace especificado em um único cluster. O Astra Control não dá suporte à capacidade de uma aplicação personalizada abranger vários namespaces ou clusters.
+
+Um rótulo é um par de chave/valor que você pode atribuir a objetos Kubernetes para identificação. Os rótulos facilitam a ordenação, organização e localização de objetos do Kubernetes. Para saber mais sobre rótulos do Kubernetes, https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/["Consulte a documentação oficial do Kubernetes"^].
+
+
+WARNING: A sobreposição de políticas para o mesmo recurso sob nomes diferentes pode causar conflitos de dados. Se você criar um aplicativo personalizado para um recurso, certifique-se de que ele não está sendo clonado ou feito backup em nenhuma outra política.
+
+.O que você vai precisar
+* Um cluster adicionado ao Astra Control
+
+
+.Passos
+. Na página aplicativos, selecione ** Definir**.
++
+A janela Custom App (aplicação personalizada) mostra quais recursos serão incluídos ou excluídos do seu aplicativo personalizado. Isso ajuda você a ter certeza de que está escolhendo os critérios corretos para definir seu aplicativo personalizado.
+
+. Na janela pop-up, insira o nome do aplicativo, escolha o cluster no menu suspenso **Cluster** e escolha o namespace do aplicativo no menu suspenso **namespace**.
+. Na lista suspensa *Label*, selecione um rótulo para os aplicativos e namespace.
+. Depois de definir o aplicativo personalizado para uma implantação, repita o processo para outras implantações, conforme necessário.
+
+
+Quando você terminar de criar os dois aplicativos personalizados, você pode tratar esses recursos como qualquer outra aplicação Astra Control. Eles podem cloná-los, criar backups e snapshots e criar uma política de proteção personalizada para cada grupo de recursos com base nos rótulos do Kubernetes.
+
+
+
+== Exemplo: Política de proteção separada para versões diferentes
+
+Neste exemplo, a equipe de devops está gerenciando uma implantação de lançamento do canary. Seu cluster tem três pods executando o nginx. Dois dos pods são dedicados à liberação estável. O terceiro pod é para o lançamento canário.
+
+O administrador do Kubernetes da equipe de devops adiciona o rótulo `deployment=stable` aos pods de versão estáveis. A equipe adiciona o rótulo `deployment=canary` ao pod de lançamento canário.
+
+A versão estável da equipe inclui um requisito para instantâneos por hora e backups diários. O lançamento canário é mais efêmero, então eles querem criar uma política de proteção menos agressiva e de curto prazo para qualquer coisa rotulada . `deployment=canary`
+
+Para evitar possíveis conflitos de dados, o administrador criará dois aplicativos personalizados: Um para a versão "canary" e outro para a versão "stable". Isso mantém os backups, snapshots e operações de clone separados para os dois grupos de objetos Kubernetes.

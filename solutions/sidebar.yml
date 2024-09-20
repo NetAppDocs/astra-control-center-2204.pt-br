@@ -1,0 +1,12 @@
+---
+section: solutions
+title: Implantar aplicativos
+entries:
+- title: Implante o Jenkins
+  url: "/solutions/jenkins-deploy-from-helm-chart.html"
+- title: Implantar o MariaDB
+  url: "/solutions/mariadb-deploy-from-helm-chart.html"
+- title: Implantar o MySQL
+  url: "/solutions/mysql-deploy-from-helm-chart.html"
+- title: Implantar Postgres
+  url: "/solutions/postgres-deploy-from-helm-chart.html"
